@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # arg1: make command passthrough, per make user manual.
 

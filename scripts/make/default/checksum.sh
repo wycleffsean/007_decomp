@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 SHA1SUM=$1
 OUTCODE=$2

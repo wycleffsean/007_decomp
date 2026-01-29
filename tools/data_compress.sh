@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 MAPFILE="./build/"$2"/ge007."$2".map"
 #this script is a hacky mess that can most definately be improved
 #fixme as I will fail if vaddr of data gets moved!!!
@@ -34,4 +34,3 @@ echo "maxsize=${CDATA_MAX_SIZE}"
 [ -x tools/aaa_rip/aaa_rip ] && tools/aaa_rip/aaa_rip build/$2/data_seg.rz $1.tmp 0 0 ${CDATA_POS} || dd if=build/$2/data_seg.rz of=$1.tmp obs=1 seek=${CDATA_POS} conv=notrunc
 
 mv $1.tmp $1
-

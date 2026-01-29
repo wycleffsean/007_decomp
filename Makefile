@@ -23,7 +23,7 @@ ifeq ($(shell type mips-linux-gnu-ld >/dev/null 2>/dev/null; echo $$?), 0)
 else ifeq ($(shell type mips64-linux-gnu-ld >/dev/null 2>/dev/null; echo $$?), 0)
   TOOLCHAIN := mips64-linux-gnu-
 else
-  TOOLCHAIN := mips64-elf-
+  TOOLCHAIN := mips-none-elf-
 endif
 
 # Use IDO Recomp UNLESS specified otherwise
@@ -209,7 +209,7 @@ LD_SCRIPT := $(BUILD_DIR)/ge007.$(OUTCODE).ld
 LDFLAGS := -T $(LD_SCRIPT) -Map $(BUILD_DIR)/ge007.$(OUTCODE).map --no-warn-mismatch
 
 AS := $(TOOLCHAIN)as
-ASFLAGS := -march=vr4300 -mabi=32 $(INCLUDE) $(ASMDEFS) 
+ASFLAGS := -march=vr4300 -mabi=32 $(INCLUDE) $(ASMDEFS)
 # Use the system installed armips if available. Otherwise use the one provided with this repository.
 ifneq (,$(shell which armips 2>/dev/null))
   ARMIPS              := armips
@@ -247,7 +247,7 @@ OBJCOPY := $(TOOLCHAIN)objcopy
 .NOTPARALLEL: print_info create_directories $(APPROM) checksum
 
 # Phony Recipes - These targets are not files, Get Make to do something
-.PHONY: print_info create_directories build_tools prerequisites checksum all_p1 all default commonclean setupclean stanclean dataclean libultraclean codeclean clean nuke help cmdbuidler test  context extractassets textures 
+.PHONY: print_info create_directories build_tools prerequisites checksum all_p1 all default commonclean setupclean stanclean dataclean libultraclean codeclean clean nuke help cmdbuidler test  context extractassets textures
 
 
 # this file references variables defined above: BUILD_DIR, CFLAGWARNING, INCLUDE, LCDEFS
