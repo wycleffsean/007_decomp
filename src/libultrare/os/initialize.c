@@ -51,7 +51,9 @@ void osInitialize()
 
     osWritebackDCache((void *)UT_VEC, E_VEC - UT_VEC + sizeof(__osExceptionVector));
     osInvalICache((void *)UT_VEC, E_VEC - UT_VEC + sizeof(__osExceptionVector));
+#if !defined(NO_TLB)
     osMapTLBRdb();
+#endif
     osPiRawReadIo(4, &clock); //TODO: remove magic constant;
     clock &= ~0xf;            //clear lower 4 bits
 

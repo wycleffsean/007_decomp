@@ -14,6 +14,8 @@ extern u32 *_codeSegmentRomEnd;
 
 extern u32 *_csegmentSegmentStart;
 extern u32 *_csegmentSegmentEnd;
+extern u32 *_csegmentSegmentRomStart;
+extern u32 *_csegmentSegmentRomEnd;
 extern u32 *_cdataSegmentRomStart;
 extern u32 *_cdataSegmentRomEnd;
 

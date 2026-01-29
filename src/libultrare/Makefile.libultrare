@@ -245,20 +245,17 @@ LIBULTRA_OS_S_FILES := \
     getcount \
     getfpccsr \
     getsr \
-    gettlbhi \
     interrupt \
     invaldcache \
     invalicache \
     kdebugserver \
     parameters \
-    probetlb \
     setcompare \
     setfpccsr \
     sethwinterrupt \
     setintmask \
     setsr \
     thread \
-    unmaptlb \
     writebackdcacheall \
     writebackdcache \
     yieldthread 
@@ -269,6 +266,15 @@ LIBULTRARE_OS_C_FILES := \
     initialize 
 
 LIBULTRARE_OS_S_FILES := 
+
+ifeq ($(NO_TLB), YES)
+LIBULTRARE_OS_C_FILES += tlb_stubs
+else
+LIBULTRA_OS_S_FILES += \
+    gettlbhi \
+    probetlb \
+    unmaptlb
+endif
 
 # #################
 # rg
