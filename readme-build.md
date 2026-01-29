@@ -13,6 +13,16 @@ The build uses the `US` version by default. Available options are `US`, `EU`, an
     make clean VERSION=JP
     make VERSION=JP
 
+# Recomp / TLB-free builds
+
+For N64Recomp workflows, you can build a TLB-free, uncompressed ELF by using the `recomp`
+target or setting `RECOMP=YES`. This disables the TLB handler setup and skips the data
+segment compression step.
+
+    make recomp VERSION=US
+    # or
+    make RECOMP=YES VERSION=US
+
 # C Compiler
 
 The c compiler can be found in `tools/irix/root/usr/bin/cc`. This splits the compilation process into several steps.  

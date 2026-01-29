@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "boot.h"
 #include <bondgame.h>
+#include "init.h"
 #include "inflate/inflate.h"
 
 /**
@@ -13,6 +14,7 @@
  */
 
 
+#if !defined(NO_TLB)
 /**
  * 1050	70000450	registers 70000000-70400000 in TLB, JR to 70000510
  *	technically, this is used in bootcode and used prior to TLB registration
@@ -47,6 +49,12 @@ glabel boot
 /* 0010B4 700004B4 01400008 */  jr    $t2
 /* 0010B8 700004B8 00000000 */   nop
 )
+#else
+void boot(void)
+{
+    init();
+}
+#endif
 
 /**
  * Due to alignments the following functions are included here

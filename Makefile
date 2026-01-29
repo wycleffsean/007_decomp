@@ -9,6 +9,10 @@ FINAL := YES
 VERSION := US
 IDO_RECOMP := YES
 VERBOSE := 2
+# Build mode toggles
+RECOMP ?= NO
+NO_TLB ?= NO
+NO_COMPRESS ?= NO
 # If COMPARE is 1, check the output sha1sum when building 'all', and if fail to match
 # then compare ELF sections to known md5 checksums.
 COMPARE := 1
@@ -67,13 +71,22 @@ else
  CFLAGWARNING :=-fullwarn -wlint
 endif
 
+ifeq ($(RECOMP), YES)
+  NO_TLB := YES
+  NO_COMPRESS := YES
+endif
+
+ifeq ($(NO_COMPRESS), YES)
+  COMPARE := 0
+endif
+
 ifeq ($(VERSION), US)
  COUNTRYCODE := u
  OUTCODE := $(COUNTRYCODE)
  LANG := US
  LCDEFS := -DVERSION_US -DLANG_US -DREFRESH_NTSC -DLEFTOVERDEBUG -DLEFTOVERSPECTRUM -DBUGFIX_R0 -DBYTEMATCH
- ASMDEFS := --defsym VERSION_US=1 --defsym LANG_US=1 --defsym REFRESH_NTSC=1 --defsym LEFTOVERDEBUG=1 --defsym LEFTOVERSPECTRUM=1 --defsym BUGFIX_R0=1 --defsym BYTEMATCH=1
- LDFILEOPTS := -DVERSION_$(LANG) -DOUTCODE=$(OUTCODE)
+ASMDEFS := --defsym VERSION_US=1 --defsym LANG_US=1 --defsym REFRESH_NTSC=1 --defsym LEFTOVERDEBUG=1 --defsym LEFTOVERSPECTRUM=1 --defsym BUGFIX_R0=1 --defsym BYTEMATCH=1
+LDFILEOPTS := -DVERSION_$(LANG) -DOUTCODE=$(OUTCODE)
 endif
 
 ifeq ($(VERSION), EU)
@@ -81,8 +94,8 @@ ifeq ($(VERSION), EU)
  OUTCODE := $(COUNTRYCODE)
  LANG := EU
  LCDEFS := -DVERSION_EU -DLANG_EU -DREFRESH_PAL -DBUGFIX_R1 -DBUGFIX_R2 -DBYTEMATCH
- ASMDEFS := --defsym VERSION_EU=1 --defsym LANG_EU=1 --defsym REFRESH_PAL=1 --defsym BUGFIX_R1=1 --defsym BUGFIX_R2=1 --defsym BYTEMATCH=1
- LDFILEOPTS := -DVERSION_$(LANG) -DOUTCODE=$(OUTCODE)
+ASMDEFS := --defsym VERSION_EU=1 --defsym LANG_EU=1 --defsym REFRESH_PAL=1 --defsym BUGFIX_R1=1 --defsym BUGFIX_R2=1 --defsym BYTEMATCH=1
+LDFILEOPTS := -DVERSION_$(LANG) -DOUTCODE=$(OUTCODE)
 endif
 
 ifeq ($(VERSION), JP)
@@ -90,8 +103,8 @@ ifeq ($(VERSION), JP)
  OUTCODE := $(COUNTRYCODE)
  LANG := JP
  LCDEFS := -DVERSION_JP -DLANG_JP -DREFRESH_NTSC -DBUGFIX_R1 -DLEFTOVERDEBUG -DLEFTOVERSPECTRUM -DBYTEMATCH
- ASMDEFS := --defsym VERSION_JP=1 --defsym LANG_JP=1 --defsym REFRESH_NTSC=1 --defsym BUGFIX_R1=1 --defsym LEFTOVERDEBUG=1 --defsym LEFTOVERSPECTRUM=1 --defsym BYTEMATCH=1
- LDFILEOPTS := -DVERSION_$(LANG) -DOUTCODE=$(OUTCODE)
+ASMDEFS := --defsym VERSION_JP=1 --defsym LANG_JP=1 --defsym REFRESH_NTSC=1 --defsym BUGFIX_R1=1 --defsym LEFTOVERDEBUG=1 --defsym LEFTOVERSPECTRUM=1 --defsym BYTEMATCH=1
+LDFILEOPTS := -DVERSION_$(LANG) -DOUTCODE=$(OUTCODE)
 endif
 
 ifeq ($(VERSION), DEBUG)
@@ -99,9 +112,9 @@ ifeq ($(VERSION), DEBUG)
  OUTCODE := d
  LANG := US
  LCDEFS := -DVERSION_US -DLANG_US -DREFRESH_NTSC -DLEFTOVERDEBUG -DLEFTOVERSPECTRUM -DBUGFIX_R0 -DDEBUGMENU -DVERSION_DEBUG
- ASMDEFS := --defsym VERSION_DEBUG=1 --defsym LANG_US=1 --defsym REFRESH_NTSC=1 --defsym LEFTOVERDEBUG=1 --defsym LEFTOVERSPECTRUM=1 --defsym BUGFIX_R0=1 --defsym DEBUGMENU=1
- COMPARE := 0
- LDFILEOPTS := -DVERSION_$(LANG) -DOUTCODE=$(OUTCODE)
+ASMDEFS := --defsym VERSION_DEBUG=1 --defsym LANG_US=1 --defsym REFRESH_NTSC=1 --defsym LEFTOVERDEBUG=1 --defsym LEFTOVERSPECTRUM=1 --defsym BUGFIX_R0=1 --defsym DEBUGMENU=1
+COMPARE := 0
+LDFILEOPTS := -DVERSION_$(LANG) -DOUTCODE=$(OUTCODE)
 endif
 
 ifeq ($(VERSION), USB)
@@ -109,9 +122,21 @@ ifeq ($(VERSION), USB)
  OUTCODE := usb
  LANG := US
  LCDEFS := -DVERSION_US -DLANG_US -DREFRESH_NTSC -DLEFTOVERDEBUG -DLEFTOVERSPECTRUM -DBUGFIX_R0 -DDEBUGMENU -DENABLE_USB
- ASMDEFS := --defsym VERSION_US=1 --defsym LANG_US=1 --defsym REFRESH_NTSC=1 --defsym LEFTOVERDEBUG=1 --defsym LEFTOVERSPECTRUM=1 --defsym BUGFIX_R0=1 --defsym DEBUGMENU=1 --defsym ENABLE_USB=1
- COMPARE := 0
- LDFILEOPTS := -DVERSION_$(LANG) -DOUTCODE=$(OUTCODE) -DENABLE_USB
+ASMDEFS := --defsym VERSION_US=1 --defsym LANG_US=1 --defsym REFRESH_NTSC=1 --defsym LEFTOVERDEBUG=1 --defsym LEFTOVERSPECTRUM=1 --defsym BUGFIX_R0=1 --defsym DEBUGMENU=1 --defsym ENABLE_USB=1
+COMPARE := 0
+LDFILEOPTS := -DVERSION_$(LANG) -DOUTCODE=$(OUTCODE) -DENABLE_USB
+endif
+
+ifeq ($(NO_TLB), YES)
+  LCDEFS += -DNO_TLB
+  ASMDEFS += --defsym NO_TLB=1
+  LDFILEOPTS += -DNO_TLB
+endif
+
+ifeq ($(NO_COMPRESS), YES)
+  LCDEFS += -DNO_COMPRESS
+  ASMDEFS += --defsym NO_COMPRESS=1
+  LDFILEOPTS += -DNO_COMPRESS
 endif
 
 ALLOWED_VERSIONS := US EU JP DEBUG USB
@@ -177,6 +202,12 @@ RZFILES := inflate/inflate.c
 RZOBJECTS := $(foreach file,$(RZFILES),$(BUILD_DIR)/src/$(file:.c=.o))
 
 OBJECTS := $(RSPOBJECTS) $(CODEOBJECTS) $(GAMEOBJECTS) $(RZOBJECTS) $(OBSEGMENT) $(ROMOBJECTS) $(RAMROM_OBJECTS) $(FONTOBJECTS) $(MUSIC_OBJECTS) $(IMAGE_OBJS)
+
+ifeq ($(NO_TLB), YES)
+  TLB_S_FILES := src/osMapTLB.s src/tlb_hardwire.s src/tlb_resolve.s
+  HEADERFILES := $(filter-out $(TLB_S_FILES),$(HEADERFILES))
+  HEADEROBJECTS := $(foreach file,$(HEADERFILES),$(BUILD_DIR)/$(file:.s=.o))
+endif
 
 ## Command Line args for builders ##
 
@@ -332,7 +363,11 @@ $(APPBIN): $(APPELF)
 
 $(APPROM):	$(APPBIN)
 	@echo "Compressing ROM"
+ifeq ($(NO_COMPRESS), YES)
+	@echo "Skipping data segment compression (NO_COMPRESS=YES)"
+else
 	$(DATASEG_COMP) $< $(OUTCODE)
+endif
 	@echo "Finalizing ROM"
 	$(N64CKSUM) $< $@
 
@@ -416,6 +451,10 @@ include include/make/cmd.make
 
 
 test: checksum
+
+recomp: RECOMP=YES
+recomp: all_p1 $(APPELF)
+	@echo "Recomp ELF generated in Build Directory."
 
 
 ifneq ($(filter-out context,$(MAKECMDGOALS)),)

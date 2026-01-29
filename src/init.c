@@ -93,13 +93,14 @@ void init(void)
 {
     u32 inflateromSize;
     u8 *csegmentSegmentVaddrStart;
-    u8 *cdataSegmentRomStart;
     u32 flags;
-    u32 cdataSegmentRomSize;
     u8 *inflateSegmentRomStart;
     s32 i;
     s32 j;
 
+#if !defined(NO_COMPRESS)
+    u8 *cdataSegmentRomStart;
+    u32 cdataSegmentRomSize;
     u8 *datazipram;
     s32 inflate_code_size;
     u32 decompress_result;
@@ -108,12 +109,18 @@ void init(void)
     u32 copylen;
     s32 *stack_pointer;
     u8 *dataziprom;
+#else
+    u32 csegmentSegmentRomSize;
+    s32 inflate_code_size;
+    s32 *stack_pointer;
+#endif
 
     csegmentSegmentVaddrStart = get_csegmentSegmentStart();
-    cdataSegmentRomStart = get_cdataSegmentRomStart();
-    cdataSegmentRomSize = (u8 *) get_cdataSegmentRomEnd() - cdataSegmentRomStart;
     inflateSegmentRomStart = get_inflateSegmentRomStart();
     inflateromSize = (u8 *) get_inflateSegmentRomEnd() - inflateSegmentRomStart;
+#if !defined(NO_COMPRESS)
+    cdataSegmentRomStart = get_cdataSegmentRomStart();
+    cdataSegmentRomSize = (u8 *) get_cdataSegmentRomEnd() - cdataSegmentRomStart;
     copylen = cdataSegmentRomSize + inflateromSize;
     datazipram = (u8 *) (RZIPLOADADDR - cdataSegmentRomSize);
     dataziprom = csegmentSegmentVaddrStart;
@@ -125,6 +132,14 @@ void init(void)
 
     decompress_result = jump_decompressfile(datazipram, csegmentSegmentVaddrStart, RZIPBUFADDR);
     if (decompress_result);
+#else
+    csegmentSegmentRomSize = (u8 *) &_csegmentSegmentRomEnd - (u8 *) &_csegmentSegmentRomStart;
+    osInvalDCache(csegmentSegmentVaddrStart, csegmentSegmentRomSize);
+    osPiRawStartDma(OS_READ, &_csegmentSegmentRomStart, csegmentSegmentVaddrStart, csegmentSegmentRomSize);
+    while ((osPiGetStatus() & PI_STATUS_DMA_BUSY))
+    {
+    }
+#endif
 
     inflate_code_size = (s32) ((u32) &_inflateSegmentRomStart - (u32) &_codeSegmentRomStart);
     if (inflate_code_size > MAXCODESIZE)
@@ -137,6 +152,7 @@ void init(void)
 
     osInitialize();
 
+#if !defined(NO_TLB)
     // This sets up TLB CONTEXT to allow the TLB miss handler to work
     initTLBPrepareContext();
 
@@ -157,6 +173,7 @@ void init(void)
     {
         osUnmapTLB(i);
     }
+#endif
 
     // Setup floating point register
     flags = __osGetFpcCsr();
